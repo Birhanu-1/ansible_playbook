@@ -1,0 +1,23 @@
+---
+- name: Modify
+  hosts: dev,test,prod
+  become: true
+  tasks:
+     - name: Development
+       ansible.builtin.copy:
+          content: Development
+          dest: /etc/issue
+          force: true
+       when: inventory_hostname in groups.dev
+     - name: Test
+       ansible.builtin.copy:
+         content: Test
+         dest: /etc/issue
+         force: true    
+       when: inventory_hostname in groups.test         
+     - name: production
+       ansible.builtin.copy:
+         content: production
+         dest: /etc/issue
+         force: true
+       when: inventory_hostname in groups.prod
