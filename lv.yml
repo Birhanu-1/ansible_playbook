@@ -1,0 +1,46 @@
+---
+- name: LV
+  hosts: all
+  become: true
+  tasks:
+     - name: Create research VG
+       community.general.lvg:
+          vg: research
+          pvs: 
+            - /dev/sdb
+          state: present
+     - name: Check if vg is defined
+       command: vgdiplay research
+       register: vg_chk
+       changed_when: false
+       failed_when: false
+     - name: If not defined
+       ansible.builtin.debug:
+           msg: "Volume group does not exist"
+       when: vg_chk.rc != 0
+     - name: Block
+       block:
+         - name: LV 6500
+           community.general.lvol:
+              vg: research
+              lv: data
+              size: 6500
+              state: present
+       rescue:
+          - name: Not enough size
+            ansible.builtin.debug:
+              msg: "Cloud not create logical volume of that size"
+
+          - name: lV 800  
+            community.general.lvol:
+              vg: research
+              lv: data
+              size: 800
+             # state: present
+              force: true
+              resizefs: true
+     - name: FS type
+       community.general.filesystem:
+          fstype: ext4
+          dev: /dev/research/data 
+          force: true
