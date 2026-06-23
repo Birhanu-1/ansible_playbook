@@ -1,0 +1,21 @@
+---
+- name: PKGS
+  hosts: dev,test,prod
+  become: true
+  tasks:
+    - name: Install php anf maraidb
+      ansible.builtin.dnf:
+        name:
+           - php
+           - mariadb
+        state: present
+    - name: Install grouplist
+      ansible.builtin.dnf:
+          name: "@RPM Development Tools"   
+          state: present
+      when: inventory_hostname in groups.dev
+    - name: Updates
+      ansible.builtin.dnf:
+        name: "*"
+        state: latest 
+      when: inventory_hostname in groups.dev
