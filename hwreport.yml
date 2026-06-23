@@ -1,0 +1,47 @@
+---
+- name: Hwreport
+  hosts: all
+  become: true
+  tasks:
+     - name: Copy Hwreport files
+       ansible.builtin.copy:
+          src: hwreport.empty
+          dest: /root/hwreport.txt
+          mode: '0664'
+          force: true
+     - name: Host
+       ansible.builtin.lineinfile:
+         path: /root/hwreport.txt
+         regexp: '^HOST='
+         line: "HOST={{ ansible_hostname }}"
+         create: true
+     - name: MEMORY
+       ansible.builtin.lineinfile:
+         path: /root/hwreport.txt
+         regexp: '^MEMORY='
+         line: "MEMORY={{ ansible_memtotal_mb | default('NONE',true) }}"
+         create: true
+     - name: BIOS
+       ansible.builtin.lineinfile:
+         path: /root/hwreport.txt
+         regexp: '^BIOS='
+         line: "BIOS={{ ansible_bios_version |default('NONE',true) }}"
+         create: true
+     - name: DISK_SIZE_SDA
+       ansible.builtin.lineinfile:
+         path: /root/hwreport.txt
+         regexp: '^DISK_SIZE_SDA='
+         line: "DISK_SIZE_SDA={{ ansible_devices.sda.size|default('NONE',true) }}"
+         create: true
+     - name: DISK_SIZE_SDA
+       ansible.builtin.lineinfile:
+         path: /root/hwreport.txt
+         regexp: '^DISK_SIZE_SDB='
+         line: "DISK_SIZE_SDB={{ ansible_devices.sdb.size|default('NONE',true) }}"
+         create: true
+     - name: CPU
+       ansible.builtin.lineinfile:
+         path: /root/hwreport.txt
+         regexp: '^CPU='
+         line: "CPU={{ ansible_processor_count |default('NONE',true) }}"
+         create: true
