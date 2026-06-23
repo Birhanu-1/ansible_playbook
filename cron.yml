@@ -1,0 +1,13 @@
+---
+- name: Cron
+  hosts: dev
+  become: true
+  tasks:
+    - name: Cron
+      ansible.builtin.cron:
+        name: add Cron
+        user: basha
+        job: "logger 'EX294 in progress'"
+        minute: '2'
+        hour: '*'
+        
