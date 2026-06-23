@@ -1,0 +1,43 @@
+---
+- name: Users 
+  hosts: dev,test,prod
+  become: true
+  vars:
+     grp:
+       - opsdev
+       - opsmgr
+  vars_files:
+     - locker.yml
+     - user_list.yml
+  tasks:
+     - name: Create grp 
+       ansible.builtin.group:
+         name: "{{ grp[0] }}"
+         state: present
+       
+       when: inventory_hostname not in groups.prod
+     - name: Create user devp
+       ansible.builtin.user:
+         name: "{{ item.name }}"
+         password: "{{ pw_developer |password_hash('sha512') }}"
+         password_expire_max: '60'
+         groups: "{{ grp[0] }}"
+       loop: "{{ users }}"
+       when: 
+          - inventory_hostname not in groups.prod
+          - item.job == 'developer'
+     - name: Create grp mngr 
+       ansible.builtin.group:
+         name: "{{ grp[1] }}"
+         state: present
+       when: inventory_hostname in groups.prod
+     - name: Create user mgr
+       ansible.builtin.user:
+         name: "{{ item.name }}"
+         password: "{{ pw_manager |password_hash('sha512') }}"
+         password_expire_max: '60'
+         groups: "{{ grp[1] }}"
+       loop: "{{ users }}"
+       when: 
+          - inventory_hostname in groups.prod
+          - item.job == 'manager'

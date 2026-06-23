@@ -1,0 +1,7 @@
+---
+users: 
+   - name: basha
+     job: developer
+   - name: aster
+     job: manager
+     
