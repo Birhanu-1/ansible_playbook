@@ -5,17 +5,10 @@
   tasks:
      - name: BaseOS
        ansible.builtin.yum_repository:
-          name: EX294_BASE
-          description: EX294 base software
-          baseurl: http://content/rhel9.0/x86_64/dvd/BaseOS
+          name: "{{ item.name }}"
+          description: "{{ item.description }}"
+          baseurl: "{{ item.baseurl }}"
           enabled: yes
           gpgcheck: yes
           gpgkey: http://content/rhel9.0/x86_64/dvd/RPM-GPG-KEY-redhat-release
-     - name: AppStream
-       ansible.builtin.yum_repository:
-          name: EX294_STREAM
-          description: EX294 stream software
-          baseurl: http://content/rhel9.0/x86_64/dvd/AppStream
-          enabled: yes
-          gpgcheck: yes
-          gpgkey: http://content/rhel9.0/x86_64/dvd/RPM-GPG-KEY-redhat-release
+       loop: "{{ yum_repo }}"

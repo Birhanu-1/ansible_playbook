@@ -1,1 +1,9 @@
 ---
+yum_repo:
+   - name: EX294_BASE
+     description: EX294 base software
+     baseurl: http://content/rhel9.0/x86_64/dvd/BaseOS
+     
+   - name: EX294_STREAM
+     description: EX294 stream software   
+     baseurl: http://content/rhel9.0/x86_64/dvd/AppStream
