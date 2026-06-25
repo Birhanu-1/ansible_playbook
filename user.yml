@@ -3,41 +3,39 @@
   hosts: dev,test,prod
   become: true
   vars:
-     grp:
-       - opsdev
-       - opsmgr
+     grp_dev: opsdev
+     grp_mgr: opsmgr
   vars_files:
      - locker.yml
      - user_list.yml
   tasks:
-     - name: Create grp 
-       ansible.builtin.group:
-         name: "{{ grp[0] }}"
-         state: present
-       
-       when: inventory_hostname not in groups.prod
-     - name: Create user devp
-       ansible.builtin.user:
-         name: "{{ item.name }}"
-         password: "{{ pw_developer |password_hash('sha512') }}"
-         password_expire_max: '60'
-         groups: "{{ grp[0] }}"
-       loop: "{{ users }}"
-       when: 
-          - inventory_hostname not in groups.prod
-          - item.job == 'developer'
-     - name: Create grp mngr 
-       ansible.builtin.group:
-         name: "{{ grp[1] }}"
-         state: present
-       when: inventory_hostname in groups.prod
-     - name: Create user mgr
-       ansible.builtin.user:
-         name: "{{ item.name }}"
-         password: "{{ pw_manager |password_hash('sha512') }}"
-         password_expire_max: '60'
-         groups: "{{ grp[1] }}"
-       loop: "{{ users }}"
-       when: 
-          - inventory_hostname in groups.prod
-          - item.job == 'manager'
+    - name: Block1
+      block:
+       - name: Create grp 
+         ansible.builtin.group:
+           name: "{{ grp_dev }}"
+           state: present
+       - name: Create user devp
+         ansible.builtin.user:
+            name: "{{ item.name }}"
+            password: "{{ pw_developer | password_hash('sha512') }}"
+            password_expire_max: '60'
+            groups: "{{ grp_dev }}"
+         loop: "{{ users }}"
+         when: item.job == 'developer'
+      when: inventory_hostname not in groups.prod
+    - name: Block1
+      block:
+       - name: Create grp 
+         ansible.builtin.group:
+           name: "{{ grp_mgr }}"
+           state: present
+       - name: Create user devp
+         ansible.builtin.user:
+            name: "{{ item.name }}"
+            password: "{{ pw_manager | password_hash('sha512') }}"
+            password_expire_max: '60'
+            groups: "{{ grp_mgr }}"
+         loop: "{{ users }}"
+         when: item.job == 'manager'
+      when: inventory_hostname in groups.prod
