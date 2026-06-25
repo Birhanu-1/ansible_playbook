@@ -1,9 +1,12 @@
 ---
 - name: Haproxy
-  hosts: balancers
+  hosts: balancers,webservers
   become: true
-  roles:
-   - balancer
+  tasks:
+      - name: Bal
+        ansible.builtin.include_role:
+           name: balancer
+        when: inventory_hostname in groups.blanacer
 - name: Phpinfo
   hosts: webservers
   become: true
